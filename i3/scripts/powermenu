@@ -1,0 +1,30 @@
+#!/bin/bash
+
+echo "⏻"
+echo "⏻"
+
+case $BLOCK_BUTTON in
+    1) rofi -show power-menu -modi "power-menu:~/.config/rofi/scripts/powermenu.sh" ;; # Assuming a rofi script exists or I'll just use a simple one
+esac
+
+# Actually, I'll make it simple: just launch i3-nagbar or a simple rofi command if no complex script exists.
+# The user's config has `bindsym $mod+d exec --no-startup-id rofi -show drun`.
+# I'll check if ~/.config/rofi/scripts/powermenu.sh exists, otherwise I'll use a simple rofi menu.
+
+if [ -f ~/.config/rofi/scripts/powermenu.sh ]; then
+   CMD="~/.config/rofi/scripts/powermenu.sh"
+else
+   # Simple rofi menu
+   CMD="echo -e 'Shutdown\nReboot\nLogout\nSuspend' | rofi -dmenu -p 'Power'"
+fi
+
+# If button clicked
+if [ "$BLOCK_BUTTON" -eq 1 ]; then
+    selected=$(eval $CMD)
+    case $selected in
+        "Shutdown") poweroff ;;
+        "Reboot") reboot ;;
+        "Logout") i3-msg exit ;;
+        "Suspend") systemctl suspend ;;
+    esac
+fi

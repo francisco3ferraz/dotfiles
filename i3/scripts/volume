@@ -1,0 +1,39 @@
+# Handle clicks
+case $BLOCK_BUTTON in
+    1) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+    3) pavucontrol ;; # Right click opens mixer
+    4) wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+ ;;
+    5) wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%- ;;
+esac
+
+# Get volume and mute status
+# wpctl get-volume @DEFAULT_AUDIO_SINK@ returns "Volume: 0.45 [MUTED]" or "Volume: 0.45"
+
+vol_str=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
+vol=${vol_str#Volume: }
+vol=${vol%% *}
+# Convert to percentage (no decimals)
+vol_pct=$(echo "$vol" | awk '{print int($1 * 100)}')
+
+# Check for mute
+if [[ "$vol_str" == *"[MUTED]"* ]]; then
+    icon="󰝟"
+    text="Muted"
+else
+    if [ "$vol_pct" -lt 30 ]; then
+        icon="󰕿"
+    elif [ "$vol_pct" -lt 70 ]; then
+        icon="󰖀"
+    else
+        icon="󰕾"
+    fi
+    text="${vol_pct}%"
+fi
+
+echo "$icon $text"
+echo "$icon $text"
+
+# Color (orange if muted)
+if [[ "$vol_str" == *"[MUTED]"* ]]; then
+    echo "#fab387"
+fi

@@ -1,0 +1,11 @@
+#!/bin/bash
+# Date and Time script
+
+# Format: "Fri 07 Feb 18:10"
+date '+%a %d %b %H:%M'
+date '+%a %d %b %H:%M'
+
+# Handle click
+case $BLOCK_BUTTON in
+    1) i3-msg exec --no-startup-id "xterm -e 'cal -y; read'" ;; # Simple calendar view
+esac

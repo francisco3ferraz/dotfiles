@@ -1,0 +1,30 @@
+#!/bin/bash
+# High tech CPU usage script
+
+# Read /proc/stat file (twice with delay to calculate diff)
+# Or use mpstat if available, but /proc/stat involves no deps
+
+get_cpu() {
+    read cpu user nice system idle iowait irq softirq steal guest < /proc/stat
+    cpu_active_prev=$((user + nice + system + irq + softirq + steal))
+    cpu_total_prev=$((user + nice + system + idle + iowait + irq + softirq + steal))
+    
+    sleep 0.5
+    
+    read cpu user nice system idle iowait irq softirq steal guest < /proc/stat
+    cpu_active_cur=$((user + nice + system + irq + softirq + steal))
+    cpu_total_cur=$((user + nice + system + idle + iowait + irq + softirq + steal))
+    
+    cpu_util=$((100 * (cpu_active_cur - cpu_active_prev) / (cpu_total_cur - cpu_total_prev)))
+    
+    echo "$cpu_util%"
+    echo "$cpu_util%"
+    
+    if [ $cpu_util -ge 80 ]; then
+        echo "#fb4934" # Red
+    elif [ $cpu_util -ge 50 ]; then
+        echo "#fab387" # Orange
+    fi
+}
+
+get_cpu
