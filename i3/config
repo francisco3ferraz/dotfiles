@@ -25,8 +25,8 @@ font pango:JetBrainsMono Nerd Font 10
 # https://wiki.archlinux.org/index.php/XDG_Autostart
 exec --no-startup-id dex --autostart --environment i3
 
-# Restore wallpaper
-exec --no-startup-id nitrogen --restore
+# Auto switch monitors: external-only when connected, laptop-only otherwise
+exec_always --no-startup-id ~/.config/i3/scripts/monitor_auto.sh --watch
 
 # The combination of xss-lock, nm-applet and pactl is a popular choice, so
 # they are included here as an example. Modify as you see fit.
@@ -69,6 +69,9 @@ bindsym $mod+Shift+q kill
 
 # start rofi
 bindsym $mod+d exec --no-startup-id rofi -show drun -font 'Hack Nerd Font 11'
+
+# screenshot
+bindsym Print exec --no-startup-id flameshot gui
 
 # change focus
 bindsym $mod+j focus left

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Handle clicks
 case $BLOCK_BUTTON in
     1) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
