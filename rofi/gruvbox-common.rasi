@@ -6,12 +6,6 @@
    Modified: Mon Feb 12 2018 06:06:47 PST -0800
    ========================================================================== */
 
-window {
-    background-color: @background;
-    border:           2;
-    padding:          2;
-}
-
 mainbox {
     border:  0;
     padding: 0;
