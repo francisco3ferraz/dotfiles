@@ -75,6 +75,9 @@ set_output_best_mode() {
 }
 
 apply_layout() {
+    # Clear DDC brightness cache on any monitor change
+    rm -f "${XDG_RUNTIME_DIR:-/tmp}/ddc_brightness"
+
     mapfile -t connected_outputs < <(get_connected_outputs)
 
     internal_output="$(get_internal_output)"

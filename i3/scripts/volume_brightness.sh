@@ -53,20 +53,25 @@ show_volume_notif() {
     pkill -RTMIN+1 i3blocks
 }
 
-# Show brightness notification (Placeholder if no tool found yet)
-show_brightness_notif() {
-    # Check for brightnessctl or xbacklight
-    if command -v brightnessctl &> /dev/null; then
-        bright=$(brightnessctl g)
-        max=$(brightnessctl m)
-        percent=$((bright * 100 / max))
-        dunstify -t 1500 -r 2593 -u normal -h int:value:"$percent" -h string:hlcolor:"$bar_color" "$icon_bright  $percent%"
-    elif command -v xbacklight &> /dev/null; then
-        percent=$(xbacklight -get | awk '{print int($1)}')
-        dunstify -t 1500 -r 2593 -u normal -h int:value:"$percent" -h string:hlcolor:"$bar_color" "$icon_bright  $percent%"
+# DDC brightness cache file — avoids reading from monitor on every keypress
+DDC_CACHE="${XDG_RUNTIME_DIR:-/tmp}/ddc_brightness"
+
+# Returns cached brightness or seeds cache from monitor on first use
+# Returns empty string if no external monitor connected
+get_ddc_brightness() {
+    if [ -f "$DDC_CACHE" ]; then
+        cat "$DDC_CACHE"
     else
-        dunstify -t 1500 -r 2593 -u normal "Brightness tool missing"
+        val=$(ddcutil getvcp 10 --display 1 --sleep-multiplier 0.1 2>/dev/null | grep -oP 'current value =\s*\K[0-9]+')
+        [ -n "$val" ] && echo "$val" > "$DDC_CACHE"
+        echo "$val"
     fi
+}
+
+# Show brightness notification using already-computed value
+show_brightness_notif() {
+    local percent="$1"
+    dunstify -t 1500 -r 2593 -u normal -h int:value:"$percent" -h string:hlcolor:"$bar_color" "$icon_bright  $percent%"
 }
 
 case $1 in
@@ -84,19 +89,33 @@ case $1 in
         show_volume_notif
         ;;
     brightness_up)
-        if command -v brightnessctl &> /dev/null; then
+        current=$(get_ddc_brightness)
+        if [ -n "$current" ]; then
+            new=$((current + 5 > 100 ? 100 : current + 5))
+            echo "$new" > "$DDC_CACHE"
+            ddcutil setvcp 10 $new --display 1 --sleep-multiplier 0.1 &
+            show_brightness_notif "$new"
+        elif command -v brightnessctl &>/dev/null; then
             brightnessctl s +5%
-        elif command -v xbacklight &> /dev/null; then
+            show_brightness_notif "$(($(brightnessctl g) * 100 / $(brightnessctl m)))"
+        elif command -v xbacklight &>/dev/null; then
             xbacklight -inc 5
+            show_brightness_notif "$(xbacklight -get | awk '{print int($1)}')"
         fi
-        show_brightness_notif
         ;;
     brightness_down)
-         if command -v brightnessctl &> /dev/null; then
+        current=$(get_ddc_brightness)
+        if [ -n "$current" ]; then
+            new=$((current - 5 < 0 ? 0 : current - 5))
+            echo "$new" > "$DDC_CACHE"
+            ddcutil setvcp 10 $new --display 1 --sleep-multiplier 0.1 &
+            show_brightness_notif "$new"
+        elif command -v brightnessctl &>/dev/null; then
             brightnessctl s 5%-
-        elif command -v xbacklight &> /dev/null; then
+            show_brightness_notif "$(($(brightnessctl g) * 100 / $(brightnessctl m)))"
+        elif command -v xbacklight &>/dev/null; then
             xbacklight -dec 5
+            show_brightness_notif "$(xbacklight -get | awk '{print int($1)}')"
         fi
-        show_brightness_notif
         ;;
 esac

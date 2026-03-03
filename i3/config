@@ -64,6 +64,9 @@ bindsym $mod+Return exec kitty
 # start dunst
 exec --no-startup-id dunst
 
+# redshift — night light
+exec --no-startup-id redshift
+
 # kill focused window
 bindsym $mod+Shift+q kill
 
