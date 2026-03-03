@@ -35,7 +35,7 @@ fi
 echo "$icon $text"
 echo "$icon $text"
 
-# Color (orange if muted)
+# Color (red if muted)
 if [[ "$vol_str" == *"[MUTED]"* ]]; then
-    echo "#fab387"
+    echo "#bd2c40"
 fi

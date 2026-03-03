@@ -21,9 +21,9 @@ get_cpu() {
     echo "$cpu_util%"
     
     if [ $cpu_util -ge 80 ]; then
-        echo "#fb4934" # Red
+        echo "#bd2c40" # critical
     elif [ $cpu_util -ge 50 ]; then
-        echo "#fab387" # Orange
+        echo "#888888" # elevated
     fi
 }
 

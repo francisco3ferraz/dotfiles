@@ -41,9 +41,9 @@ echo "$icon $capacity%"
 
 # Color
 if [ "$status" = "Charging" ]; then
-    echo "#b8bb26" # Green
+    : # no color override, inherit bar default
 elif [ "$capacity" -le 20 ]; then
-    echo "#fb4934" # Red
+    echo "#bd2c40" # critical
 elif [ "$capacity" -le 40 ]; then
-    echo "#fab387" # Orange
+    echo "#888888" # low
 fi
